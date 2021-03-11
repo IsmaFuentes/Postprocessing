@@ -86,48 +86,25 @@ namespace Postprocessing.filters
         /// Applies a black and white filter using the commonly known Otsu adaptive thresholding algorithm
         /// </summary>
         /// <returns></returns>
-        public Bitmap BinarizeOtsuAdaptive() // todo: refactor
+        public Bitmap BinarizeOtsuAdaptive()
         {
-            var grayscale = new Bitmap(source.Width, source.Height, source.PixelFormat);
-            var attributes = new ImageAttributes();
+            var binarized = new Bitmap(source.Width, source.Height, source.PixelFormat);
 
-            // Grayscale color matrix
-            ColorMatrix grayscaleMatrix = new ColorMatrix(new float[][]
+            using(var grayscale = this.ToGrayscale())
             {
-                new float[] {0.299f, 0.299f, 0.299f, 0, 0},
-                new float[] {0.587f, 0.587f, 0.587f, 0, 0},
-                new float[] {0.114f, 0.114f, 0.114f, 0, 0},
-                new float[] {     0,      0,      0, 1, 0},
-                new float[] {     0,      0,      0, 0, 1}
-            });
+                var attributes = new ImageAttributes();
 
-            attributes.SetColorMatrix(grayscaleMatrix);
+                int t = Otsu.GetOtsuThreshold(grayscale);
 
-            using (var g = Graphics.FromImage(grayscale))
-            {
-                g.DrawImage(source, new Rectangle(0, 0, grayscale.Width, grayscale.Height), 0, 0, grayscale.Width, grayscale.Height, GraphicsUnit.Pixel, attributes);
+                attributes.SetThreshold(t);
+
+                using(var g = Graphics.FromImage(binarized))
+                {
+                    g.DrawImage(grayscale, new Rectangle(0, 0, grayscale.Width, grayscale.Height), 0, 0, grayscale.Width, grayscale.Height, GraphicsUnit.Pixel, attributes);
+                }
             }
 
-            int t = Otsu.GetOtsuThreshold(grayscale);
-
-            //float threshold = 0.0f;
-            //if(t > 10 && t < 100)
-            //{
-            //    threshold = (float)Math.Round(t / (decimal)100, 2);
-            //}
-            //else
-            //{
-            //    threshold = (float)Math.Round(t / (decimal)1000, 2);
-            //}
-
-            attributes.SetThreshold(t);
-
-            using (var g = Graphics.FromImage(grayscale))
-            {
-                g.DrawImage(source, new Rectangle(0, 0, grayscale.Width, grayscale.Height), 0, 0, grayscale.Width, grayscale.Height, GraphicsUnit.Pixel, attributes);
-            }
-
-            return grayscale;
+            return binarized;
         }
     }
 }

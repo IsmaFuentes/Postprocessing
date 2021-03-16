@@ -53,6 +53,8 @@ namespace Postprocessing.otsu
         {
             int[] histogram = GetHistogram(source);
 
+            // todo: Fine tune, the output threshold is too high
+
             int threshold = 0;
             int totalPixels = source.Width * source.Height;
             int sumB = 0;

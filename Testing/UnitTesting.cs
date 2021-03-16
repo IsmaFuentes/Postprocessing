@@ -15,7 +15,7 @@ namespace Testing
             string dir = AppDomain.CurrentDomain.BaseDirectory;
             string projectDirectory = Directory.GetParent(dir).Parent.Parent.Parent.FullName;
 
-            using (var source = Bitmap.FromFile($"{projectDirectory}/samples/portrait2.jpg"))
+            using (var source = Bitmap.FromFile($"{projectDirectory}/samples/portrait.jpg"))
             {
                 using (var filter = new Filter((Bitmap)source))
                 {
@@ -33,7 +33,7 @@ namespace Testing
             string dir = AppDomain.CurrentDomain.BaseDirectory;
             string projectDirectory = Directory.GetParent(dir).Parent.Parent.Parent.FullName;
 
-            using (var source = Bitmap.FromFile($"{projectDirectory}/samples/portrait2.jpg"))
+            using (var source = Bitmap.FromFile($"{projectDirectory}/samples/portrait.jpg"))
             {
                 using (var filter = new Filter((Bitmap)source))
                 {
@@ -51,13 +51,31 @@ namespace Testing
             string dir = AppDomain.CurrentDomain.BaseDirectory;
             string projectDirectory = Directory.GetParent(dir).Parent.Parent.Parent.FullName;
 
-            using (var source = Bitmap.FromFile($"{projectDirectory}/samples/portrait2.jpg"))
+            using (var source = Bitmap.FromFile($"{projectDirectory}/samples/portrait.jpg"))
             {
                 using (var filter = new Filter((Bitmap)source))
                 {
                     using(var binarized = filter.BinarizeOtsuAdaptive())
                     {
                         binarized.Save(@"C:\Users\Usuario\Desktop\binarized_otsu.jpg");
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void TestSharpen()
+        {
+            string dir = AppDomain.CurrentDomain.BaseDirectory;
+            string projectDirectory = Directory.GetParent(dir).Parent.Parent.Parent.FullName;
+
+            using (var source = Bitmap.FromFile($"{projectDirectory}/samples/portrait.jpg"))
+            {
+                using (var filter = new Filter((Bitmap)source))
+                {
+                    using (var sharpened = filter.Sharpen(0.85))
+                    {
+                        sharpened.Save(@"C:\Users\Usuario\Desktop\sharpened.jpg");
                     }
                 }
             }

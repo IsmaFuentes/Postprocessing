@@ -3,10 +3,10 @@
 ### Done:
 	- Grayscale
 	- Binarization
+	- Sharpening
 
 ### Todo:
 	- Gausian Blur
-	- Sharpening
 	- Otsu Threshold
 
 ### Work in progress:

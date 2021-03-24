@@ -31,7 +31,6 @@ namespace Postprocessing.filters
             var grayscale = new Bitmap(source.Width, source.Height, source.PixelFormat);
             var attributes = new ImageAttributes();
 
-            // Grayscale color matrix
             ColorMatrix grayscaleMatrix = new ColorMatrix(new float[][]
             {
                 new float[] {0.299f, 0.299f, 0.299f, 0, 0},
@@ -61,7 +60,6 @@ namespace Postprocessing.filters
             var grayscale = new Bitmap(source.Width, source.Height, source.PixelFormat);
             var attributes = new ImageAttributes();
 
-            // Grayscale color matrix
             ColorMatrix grayscaleMatrix = new ColorMatrix(new float[][]
             {
                 new float[] {0.299f, 0.299f, 0.299f, 0, 0},
@@ -82,29 +80,47 @@ namespace Postprocessing.filters
             return grayscale;
         }
 
-        /// <summary>
-        /// Applies a black and white filter using the commonly known Otsu adaptive thresholding algorithm
-        /// </summary>
-        /// <returns></returns>
         public Bitmap BinarizeOtsuAdaptive()
         {
-            var binarized = new Bitmap(source.Width, source.Height, source.PixelFormat);
-
             using(var grayscale = this.ToGrayscale())
             {
-                var attributes = new ImageAttributes();
-
-                int t = Otsu.GetOtsuThreshold(grayscale);
-
-                attributes.SetThreshold(t);
-
-                using(var g = Graphics.FromImage(binarized))
+                Bitmap binarized = (Bitmap)grayscale.Clone();
+                BitmapData data = binarized.LockBits(
+                    new Rectangle(0, 0, grayscale.Width, grayscale.Height), 
+                    ImageLockMode.ReadWrite,
+                    PixelFormat.Format24bppRgb
+                );
+                
+                int threshold = Otsu.GetThreshold(grayscale);
+                unsafe
                 {
-                    g.DrawImage(grayscale, new Rectangle(0, 0, grayscale.Width, grayscale.Height), 0, 0, grayscale.Width, grayscale.Height, GraphicsUnit.Pixel, attributes);
-                }
-            }
+                    int totalRGB;
+                    byte* ptr = (byte*)data.Scan0.ToPointer();
+                    int stopAddress = (int)ptr + data.Stride * data.Height;
+                    while((int)ptr != stopAddress)
+                    {
+                        totalRGB = ptr[0] + ptr[1] + ptr[2];
+                        if(totalRGB <= threshold)
+                        {
+                            ptr[2] = 0;
+                            ptr[1] = 0;
+                            ptr[0] = 0;
+                        }
+                        else
+                        {
+                            ptr[2] = 255;
+                            ptr[1] = 255;
+                            ptr[0] = 255;
+                        }
 
-            return binarized;
+                        ptr += 3;
+                    }
+                }
+
+                binarized.UnlockBits(data);
+
+                return binarized;
+            }
         }
 
         /// <summary>
@@ -200,6 +216,36 @@ namespace Postprocessing.filters
 
             return sharpen;
         }
+
+        #region obsolete
+
+        /// <summary>
+        /// Applies a black and white filter using the commonly known Otsu adaptive thresholding algorithm
+        /// </summary>
+        /// <returns></returns>
+        [Obsolete("Use BinarizeOtsuAdaptive instead", true)]
+        public Bitmap BinarizeOtsuAdaptive_old()
+        {
+            var binarized = new Bitmap(source.Width, source.Height, source.PixelFormat);
+
+            using (var grayscale = this.ToGrayscale())
+            {
+                var attributes = new ImageAttributes();
+
+                int t = Otsu.GetOtsuThreshold(grayscale);
+
+                attributes.SetThreshold(t);
+
+                using (var g = Graphics.FromImage(binarized))
+                {
+                    g.DrawImage(grayscale, new Rectangle(0, 0, grayscale.Width, grayscale.Height), 0, 0, grayscale.Width, grayscale.Height, GraphicsUnit.Pixel, attributes);
+                }
+            }
+
+            return binarized;
+        }
+
+        #endregion
     }
 }
 

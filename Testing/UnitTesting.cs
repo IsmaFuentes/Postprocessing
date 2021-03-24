@@ -51,7 +51,7 @@ namespace Testing
             string dir = AppDomain.CurrentDomain.BaseDirectory;
             string projectDirectory = Directory.GetParent(dir).Parent.Parent.Parent.FullName;
 
-            using (var source = Bitmap.FromFile($"{projectDirectory}/samples/portrait.jpg"))
+            using (var source = Bitmap.FromFile($"{projectDirectory}/samples/portrait2.jpg"))
             {
                 using (var filter = new Filter((Bitmap)source))
                 {

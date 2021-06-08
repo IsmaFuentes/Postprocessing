@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
@@ -139,39 +138,5 @@ namespace Postprocessing.otsu
 
             return threshold;
         }
-
-        #region Obsolete methods
-
-        /// <summary>
-        /// 256-element histogram of a grayscale image different gray-levels
-        /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
-        [Obsolete("Slow histogram implementation.", true)]
-        private static int[] GetHistogram_old(Bitmap source)
-        {
-            using (Bitmap clone = (Bitmap)source.Clone())
-            {
-                int[] histogram = new int[256];
-
-                BitmapData data = clone.LockBits(new Rectangle(Point.Empty, source.Size), ImageLockMode.ReadOnly, source.PixelFormat);
-
-                for (int x = 0; x < source.Width; x++)
-                {
-                    for (int y = 0; y < source.Height; y++)
-                    {
-                        int value = source.GetPixel(x, y).R;
-
-                        histogram[value] += 1;
-                    }
-                }
-
-                clone.UnlockBits(data);
-
-                return histogram;
-            }
-        }
-
-        #endregion
     }
 }

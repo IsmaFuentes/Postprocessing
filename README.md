@@ -3,11 +3,10 @@
 ### Done:
 	- Grayscale
 	- Binarization
-	- Sharpening
+	- Image binarization with Otsu adaptative thresholding algorithm
 
 ### Todo:
 	- Gausian Blur
-	- Otsu Threshold
 
 ### Work in progress:
-	- Image binarization with Otsu adaptative thresholding algorithm
+	- Sharpen: improve algorithm speed

@@ -21,7 +21,7 @@ namespace Testing
                 {
                     using (var grayscale = filter.ToGrayscale())
                     {
-                        grayscale.Save(@"C:\Users\Usuario\Desktop\grayscale.jpg");
+                        grayscale.Save(@"C:\Users\Ismael\Desktop\grayscale.jpg");
                     }
                 }
             }
@@ -39,7 +39,7 @@ namespace Testing
                 {
                     using (var grayscale = filter.Binarize(0.40f))
                     {
-                        grayscale.Save(@"C:\Users\Usuario\Desktop\binarized.jpg");
+                        grayscale.Save(@"C:\Users\Ismael\Desktop\binarized.jpg");
                     }
                 }
             }
@@ -57,7 +57,7 @@ namespace Testing
                 {
                     using(var binarized = filter.BinarizeOtsuAdaptive())
                     {
-                        binarized.Save(@"C:\Users\Usuario\Desktop\binarized_otsu.jpg");
+                        binarized.Save(@"C:\Users\Ismael\Desktop\binarized_otsu.jpg");
                     }
                 }
             }
@@ -75,7 +75,7 @@ namespace Testing
                 {
                     using (var sharpened = filter.Sharpen(0.85))
                     {
-                        sharpened.Save(@"C:\Users\Usuario\Desktop\sharpened.jpg");
+                        sharpened.Save(@"C:\Users\Ismael\Desktop\sharpened.jpg");
                     }
                 }
             }

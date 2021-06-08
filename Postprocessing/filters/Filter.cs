@@ -1,7 +1,7 @@
-﻿using Postprocessing.otsu;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using Postprocessing.otsu;
 
 namespace Postprocessing.filters
 {
@@ -16,14 +16,14 @@ namespace Postprocessing.filters
 
         public void Dispose()
         {
-            if(this.source != null)
+            if(source != null)
             {
                 source.Dispose();
             }
         }
 
         /// <summary>
-        /// Applies a grayscale filter
+        /// Returns a grayscale filtered image
         /// </summary>
         /// <returns></returns>
         public Bitmap ToGrayscale()
@@ -50,6 +50,11 @@ namespace Postprocessing.filters
             return grayscale;
         }
 
+        /// <summary>
+        /// Returns a binarized image
+        /// </summary>
+        /// <param name="strength"></param>
+        /// <returns></returns>
         public Bitmap Binarize(float strength)
         {
             if(strength < 0 || strength > 1)
@@ -80,17 +85,17 @@ namespace Postprocessing.filters
             return grayscale;
         }
 
+        /// <summary>
+        /// Returns a binarized image using otsu's adaptative thresholding algorithm
+        /// </summary>
+        /// <returns></returns>
         public Bitmap BinarizeOtsuAdaptive()
         {
-            using(var grayscale = this.ToGrayscale())
+            using(var grayscale = ToGrayscale())
             {
                 Bitmap binarized = (Bitmap)grayscale.Clone();
-                BitmapData data = binarized.LockBits(
-                    new Rectangle(0, 0, grayscale.Width, grayscale.Height), 
-                    ImageLockMode.ReadWrite,
-                    PixelFormat.Format24bppRgb
-                );
-                
+                var data = binarized.LockBits(new Rectangle(0, 0, grayscale.Width, grayscale.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+
                 int threshold = Otsu.GetThreshold(grayscale);
                 unsafe
                 {
@@ -124,7 +129,7 @@ namespace Postprocessing.filters
         }
 
         /// <summary>
-        /// Applies a sharpen filter into the image
+        /// Returns a sharpened image
         /// </summary>
         /// <param name="strength"></param>
         /// <returns></returns>
@@ -135,21 +140,19 @@ namespace Postprocessing.filters
                 throw new ArgumentOutOfRangeException("strength should be between 0 and 1");
             }
 
-            // Todo: make it faster
-
             var sharpen = (Bitmap)source.Clone();
 
-            const int fW = 5; // filter width
-            const int fH = 5; // fitler height
+            const int filterW = 5;
+            const int filterH = 5;
 
             int w = sharpen.Width;
             int h = sharpen.Height;
 
-            double[,] filter = new double[fW, fH]
+            double[,] filter = new double[filterW, filterH]
             {
                 { -1, -1, -1, -1, -1 },
                 { -1,  2,  2,  2, -1 },
-                { -1,  2,  16,  2, -1 },
+                { -1,  2,  16, 2, -1 },
                 { -1,  2,  2,  2, -1 },
                 { -1, -1, -1, -1, -1 }
             };
@@ -175,12 +178,12 @@ namespace Postprocessing.filters
                     double gColor = 0.0;
                     double bColor = 0.0;
 
-                    for (int fx = 0; fx < fW; fx++)
+                    for (int fx = 0; fx < filterW; fx++)
                     {
-                        for (int fy = 0; fy < fH; fy++)
+                        for (int fy = 0; fy < filterH; fy++)
                         {
-                            int imageX = (x - fW / 2 + fx + w) % w;
-                            int imageY = (y - fH / 2 + fy + h) % h;
+                            int imageX = (x - filterW / 2 + fx + w) % w;
+                            int imageY = (y - filterH / 2 + fy + h) % h;
 
                             rgb = imageY * data.Stride + 3 * imageX;
 
@@ -198,9 +201,10 @@ namespace Postprocessing.filters
                 }
             }
 
-            for (int x = 0; x < w; ++x)
+            // update image rgb values
+            for (int x = 0; x < w; x++)
             {
-                for (int y = 0; y < h; ++y)
+                for (int y = 0; y < h; y++)
                 {
                     rgb = y * data.Stride + 3 * x;
 
@@ -216,36 +220,6 @@ namespace Postprocessing.filters
 
             return sharpen;
         }
-
-        #region obsolete
-
-        /// <summary>
-        /// Applies a black and white filter using the commonly known Otsu adaptive thresholding algorithm
-        /// </summary>
-        /// <returns></returns>
-        [Obsolete("Use BinarizeOtsuAdaptive instead", true)]
-        public Bitmap BinarizeOtsuAdaptive_old()
-        {
-            var binarized = new Bitmap(source.Width, source.Height, source.PixelFormat);
-
-            using (var grayscale = this.ToGrayscale())
-            {
-                var attributes = new ImageAttributes();
-
-                int t = Otsu.GetOtsuThreshold(grayscale);
-
-                attributes.SetThreshold(t);
-
-                using (var g = Graphics.FromImage(binarized))
-                {
-                    g.DrawImage(grayscale, new Rectangle(0, 0, grayscale.Width, grayscale.Height), 0, 0, grayscale.Width, grayscale.Height, GraphicsUnit.Pixel, attributes);
-                }
-            }
-
-            return binarized;
-        }
-
-        #endregion
     }
 }
 

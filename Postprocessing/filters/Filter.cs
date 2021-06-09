@@ -142,10 +142,7 @@ namespace Postprocessing.filters
 
             var sharpen = (Bitmap)source.Clone();
 
-            const int filterSize = 5;//5;
-
-            int w = sharpen.Width;
-            int h = sharpen.Height;
+            const int filterSize = 5;
 
             double[,] filter = new double[filterSize, filterSize]
             {
@@ -156,14 +153,16 @@ namespace Postprocessing.filters
                 {  0, -1, -1, -1,  0 }
             };
 
+            int w = sharpen.Width;
+            int h = sharpen.Height;
+
             double bias = 1 - strength;
             double factor = strength / 16.0;
 
-            Color[,] result = new Color[w, h];
+            var result = new Color[w, h];
             var data = sharpen.LockBits(new Rectangle(0, 0, w, h), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
-
-            int bytes = data.Stride * h;
-            byte[] rgbValues = new byte[bytes];
+            var bytes = data.Stride * h;
+            var rgbValues = new byte[bytes];
 
             System.Runtime.InteropServices.Marshal.Copy(data.Scan0, rgbValues, 0, bytes);
 
